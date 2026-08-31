@@ -1,15 +1,17 @@
 /**
- * src/components/PartCard.jsx
+ * src/components/PartCard.tsx
  */
 
+import type { ReactNode } from "react";
+import type { Part } from "../types";
 import styles from "../styles/PartCard.module.css";
 
-/**
- * 単一パーツの情報表示カード
- * @param {Object} part
- * @param {React.ReactNode} [action] - 右下に配置するアクション要素（例: ボタン）
- */
-export default function PartCard({ part, action }) {
+interface PartCardProps {
+  part: Part | null | undefined;
+  action?: ReactNode;
+}
+
+export default function PartCard({ part, action }: PartCardProps) {
   if (!part) return null;
 
   return (

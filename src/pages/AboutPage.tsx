@@ -1,5 +1,5 @@
 /**
- * src/pages/AboutPage.jsx
+ * src/pages/AboutPage.tsx
  */
 
 import styles from "../styles/AboutPage.module.css";

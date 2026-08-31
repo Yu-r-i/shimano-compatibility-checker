@@ -1,19 +1,20 @@
 /**
- * src/components/PartSelector.jsx
+ * src/components/PartSelector.tsx
  */
 
 import { useMemo } from "react";
+import type { Part, PartCategory } from "../types";
 import styles from "../styles/PartSelector.module.css";
 
-/**
- * 汎用セレクタ
- * @param {Object[]} parts - 全パーツ
- * @param {string} category - 例: "shifter" | "rear_derailleur" | "cassette" | "chain"
- * @param {Object|null} value - 現在の選択パーツ
- * @param {(p:Object|null)=>void} onChange - 変更ハンドラ
- * @param {string} [label] - ラベル表示
- * @param {boolean} [compact=false] - コンパクト表示
- */
+interface PartSelectorProps {
+  parts: Part[];
+  category: PartCategory;
+  value: Part | null;
+  onChange: (part: Part | null) => void;
+  label?: string;
+  compact?: boolean;
+}
+
 export default function PartSelector({
   parts,
   category,
@@ -21,7 +22,7 @@ export default function PartSelector({
   onChange,
   label,
   compact = false,
-}) {
+}: PartSelectorProps) {
   const list = useMemo(
     () => parts.filter((p) => p.category === category),
     [parts, category]

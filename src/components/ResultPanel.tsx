@@ -1,14 +1,30 @@
 /**
- * src/components/ResultPanel.jsx
+ * src/components/ResultPanel.tsx
  */
 
+import type { CompatibilityResult } from "../types";
 import styles from "../styles/ResultPanel.module.css";
 
-/**
- * 互換判定結果パネル
- * @param {Object|null} summary - { ok: boolean, reasons: string[] }
- */
-export default function ResultPanel({ summary }) {
+interface ResultPanelProps {
+  summary: CompatibilityResult | null;
+  loading?: boolean;
+  error?: string | null;
+}
+
+export default function ResultPanel({ summary, loading = false, error = null }: ResultPanelProps) {
+  if (loading) {
+    return <p className={styles.placeholder}>判定中...</p>;
+  }
+
+  if (error) {
+    return (
+      <div className={`${styles.panel} ${styles.ng}`}>
+        <h3 className={styles.title}>結果: エラー ⚠️</h3>
+        <p>{error}</p>
+      </div>
+    );
+  }
+
   if (!summary) {
     return <p className={styles.placeholder}>パーツを選択すると結果が表示されます。</p>;
   }

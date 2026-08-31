@@ -1,10 +1,10 @@
 /**
- * src/App.jsx
+ * src/App.tsx
  *
  * Main application component
  */
 
-import { HashRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import CompatibilityPage from "./pages/CompatibilityPage";
 import PartsPage from "./pages/PartsPage";
 import AboutPage from "./pages/AboutPage";

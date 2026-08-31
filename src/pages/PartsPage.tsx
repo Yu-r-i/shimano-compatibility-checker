@@ -1,34 +1,35 @@
 /**
- * src/pages/PartsPage.jsx
+ * src/pages/PartsPage.tsx
  */
 
 import { useEffect, useMemo, useState } from "react";
-import { loadParts } from "../services/data";
+import { getParts } from "../api/client";
 import PartCard from "../components/PartCard";
+import type { Part } from "../types";
 import styles from "../styles/PartsPage.module.css";
 
 export default function PartsPage() {
-  const [parts, setParts] = useState([]);
+  const [parts, setParts] = useState<Part[]>([]);
   const [q, setQ] = useState("");
-  const [category, setCategory] = useState("all");
-  const [speed, setSpeed] = useState("all");
+  const [category, setCategory] = useState<string>("all");
+  const [speed, setSpeed] = useState<string>("all");
 
   useEffect(() => {
-    loadParts().then(setParts);
+    getParts().then(setParts);
   }, []);
 
   const categories = useMemo(() => {
-    const set = new Set(parts.map(p => p.category));
+    const set = new Set(parts.map((p) => p.category));
     return ["all", ...Array.from(set)];
   }, [parts]);
 
   const speeds = useMemo(() => {
-    const set = new Set(parts.map(p => p.speed).filter(Boolean));
-    return ["all", ...Array.from(set).sort((a,b) => a - b)];
+    const set = new Set(parts.map((p) => p.speed).filter((s): s is number => Boolean(s)));
+    return ["all", ...Array.from(set).sort((a, b) => a - b)];
   }, [parts]);
 
   const filtered = useMemo(() => {
-    return parts.filter(p => {
+    return parts.filter((p) => {
       const byCat = category === "all" || p.category === category;
       const bySpeed = speed === "all" || String(p.speed) === String(speed);
       const byQ =
@@ -58,7 +59,7 @@ export default function PartsPage() {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
-          {categories.map(c => (
+          {categories.map((c) => (
             <option key={c} value={c}>
               {c}
             </option>
@@ -69,7 +70,7 @@ export default function PartsPage() {
           value={speed}
           onChange={(e) => setSpeed(e.target.value)}
         >
-          {speeds.map(s => (
+          {speeds.map((s) => (
             <option key={s} value={s}>
               {s}
             </option>

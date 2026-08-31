@@ -1,40 +1,62 @@
 /**
- * src/pages/CompatibilityPage.jsx
+ * src/pages/CompatibilityPage.tsx
  */
 
 import { useEffect, useState } from "react";
 import PartSelector from "../components/PartSelector";
 import ResultPanel from "../components/ResultPanel";
-import {
-  checkShifterRearDerailleur,
-  checkRDvsCassette,
-  checkChainVsCassette,
-  summarize,
-} from "../utils/compat";
-import { loadParts } from "../services/data";
+import { checkCompatibility, getParts } from "../api/client";
+import type { CompatibilityResult, Part } from "../types";
 import styles from "../styles/CompatibilityPage.module.css";
 
 export default function CompatibilityPage() {
-  const [parts, setParts] = useState([]);
-  const [shifter, setShifter] = useState(null);
-  const [rd, setRd] = useState(null);
-  const [cassette, setCassette] = useState(null);
-  const [chain, setChain] = useState(null);
-  const [summary, setSummary] = useState(null);
+  const [parts, setParts] = useState<Part[]>([]);
+  const [shifter, setShifter] = useState<Part | null>(null);
+  const [rd, setRd] = useState<Part | null>(null);
+  const [cassette, setCassette] = useState<Part | null>(null);
+  const [chain, setChain] = useState<Part | null>(null);
+
+  const [summary, setSummary] = useState<CompatibilityResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadParts().then(setParts);
+    getParts().then(setParts);
   }, []);
 
   useEffect(() => {
     if (!shifter || !rd || !cassette || !chain) {
       setSummary(null);
+      setError(null);
       return;
     }
-    const r1 = checkShifterRearDerailleur(shifter, rd);
-    const r2 = checkRDvsCassette(rd, cassette);
-    const r3 = checkChainVsCassette(chain, cassette);
-    setSummary(summarize([r1, r2, r3]));
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    checkCompatibility({
+      shifterId: shifter.id,
+      rearDerailleurId: rd.id,
+      cassetteId: cassette.id,
+      chainId: chain.id,
+    })
+      .then((result) => {
+        if (!cancelled) setSummary(result);
+      })
+      .catch((err: Error) => {
+        if (!cancelled) {
+          setSummary(null);
+          setError(err.message);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [shifter, rd, cassette, chain]);
 
   return (
@@ -70,7 +92,7 @@ export default function CompatibilityPage() {
           label="Chain"
         />
       </div>
-      <ResultPanel summary={summary} />
+      <ResultPanel summary={summary} loading={loading} error={error} />
     </div>
   );
 }

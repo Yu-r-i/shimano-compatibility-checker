@@ -15,10 +15,7 @@
       name="description"
       content="[Shimano Compatibility Checkerは、シマノ製コンポーネントやパーツの互換性を簡単に確認できるWebアプリです。型番や仕様から素早く検索・比較できます。]"
     />
-    <link
-      rel="canonical"
-      href="https://yu-r-i.github.io/Shimano_CompatibilityChecker/"
-    />
+    <link rel="canonical" href="%VITE_SITE_URL%" />
 
     <!-- ========== OGP / SNS ========== -->
     <meta property="og:site_name" content="Shimano Compatibility Checker" />
@@ -28,14 +25,8 @@
       content="[Shimano Compatibility Checkerは、シマノ製コンポーネントやパーツの互換性を簡単に確認できるWebアプリです。型番や仕様から素早く検索・比較できます。]"
     />
     <!-- 絶対URLを推奨（403や相対解釈ミスを避けるため） -->
-    <meta
-      property="og:image"
-      content="https://yu-r-i.github.io/Shimano_CompatibilityChecker/ogp.png"
-    />
-    <meta
-      property="og:url"
-      content="https://yu-r-i.github.io/Shimano_CompatibilityChecker/"
-    />
+    <meta property="og:image" content="%VITE_OGP_IMAGE_URL%" />
+    <meta property="og:url" content="%VITE_SITE_URL%" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ja_JP" />
 
@@ -46,19 +37,15 @@
       name="twitter:description"
       content="[Shimano Compatibility Checkerは、シマノ製コンポーネントやパーツの互換性を簡単に確認できるWebアプリです。型番や仕様から素早く検索・比較できます。]"
     />
-    <meta
-      name="twitter:image"
-      content="https://yu-r-i.github.io/Shimano_CompatibilityChecker/ogp.png"
-    />
+    <meta name="twitter:image" content="%VITE_OGP_IMAGE_URL%" />
 
     <!-- ========== アイコン類 ========== -->
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <!-- 任意: PWA/manifest を使う場合 -->
-    <!-- <link rel="manifest" href="%PUBLIC_URL%/manifest.webmanifest" /> -->
+    <!-- <link rel="manifest" href="/manifest.webmanifest" /> -->
 
     <!-- ========== パフォーマンス微調整（任意） ========== -->
-    <!-- GitHub Pages でも安定する preconnect だけ使用 -->
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <!-- 例: Google Fonts を使うなら preload で先読み（実際のURLに置換） -->
     <!-- <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?..." /> -->
@@ -70,28 +57,27 @@
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Shimano Compatibility Checker",
-      "url": "https://yu-r-i.github.io/Shimano_CompatibilityChecker/",
+      "url": "%VITE_SITE_URL%",
       "inLanguage": "ja",
       "description": "[Shimano Compatibility Checkerは、シマノ製コンポーネントやパーツの互換性を簡単に確認できるWebアプリです。型番や仕様から素早く検索・比較できます。]",
       "publisher": {
         "@type": "Organization",
         "name": "yu-r-i",
-        "url": "https://yu-r-i.github.io/Shimano_CompatibilityChecker/",
+        "url": "%VITE_SITE_URL%",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://yu-r-i.github.io/Shimano_CompatibilityChecker/ogp.png"
+          "url": "%VITE_OGP_IMAGE_URL%"
         }
       }
     }
     </script>
 
-    <meta name="google-site-verification" content="ckGEnPG7UyTUJL627fQZWtYX_VZtb3UKLB1DZQxZnfE" />
-
-    <!-- GitHub Pages のクローラ対策: 404回避・正規URL指定は canonical で担保 -->
-    <!-- SPAルーティング用の meta refresh はSEO上推奨しないため未使用 -->
+    <!-- 検索コンソール等の検証トークンはドメインごとに異なるため env で管理。未設定時は出力されない -->
+    <meta name="google-site-verification" content="%VITE_GOOGLE_SITE_VERIFICATION%" />
   </head>
   <body>
     <noscript>本サイトを利用するにはJavaScriptを有効にする必要がある。</noscript>
     <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

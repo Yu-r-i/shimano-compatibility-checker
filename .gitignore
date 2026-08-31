@@ -1,17 +1,16 @@
 # dependencies
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # build outputs
-build/
 dist/
 
 # caches
 .cache/
 node_modules/.cache/
-.eslintcache
 
-# env
-.env*
+# Cloudflare / Wrangler
+.wrangler/
+
+# env (VITE_* defaults are committed via .env / .env.example; local overrides are ignored)
+.env.local
+.env.*.local
