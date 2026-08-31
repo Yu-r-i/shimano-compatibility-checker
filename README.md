@@ -42,7 +42,7 @@ adaptable (e.g. swapping the JSON data source for a database later) without any 
 ## Directory Structure
 
 ~~~bash
-Shimano_CompatibilityChecker/
+shimano-compatibility-checker/
 ├── index.html              # Vite entry HTML
 ├── src/                    # React frontend
 │   ├── api/                # fetch wrapper for the Hono API
@@ -67,8 +67,8 @@ Shimano_CompatibilityChecker/
 
 1. Clone the repository
     ```bash
-    git clone https://github.com/Yu-r-i/Shimano_CompatibilityChecker.git
-    cd Shimano_CompatibilityChecker
+    git clone https://github.com/Yu-r-i/shimano-compatibility-checker.git
+    cd shimano-compatibility-checker
     ```
 
 2. Install dependencies
