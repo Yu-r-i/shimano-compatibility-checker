@@ -1,3 +1,8 @@
+export interface Env {
+  ASSETS: Fetcher;
+  DB: D1Database;
+}
+
 export type PartCategory = "shifter" | "rear_derailleur" | "cassette" | "chain";
 
 export interface Part {

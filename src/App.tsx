@@ -1,33 +1,45 @@
-/**
- * src/App.tsx
- *
- * Main application component
- */
+import { Routes, Route, Navigate, useLocation, type Location } from "react-router-dom";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
+import { AppShell } from "@/app/app-shell";
+import { PartsProvider } from "@/hooks/use-parts";
+import DiagnosisPage from "@/pages/diagnosis-page";
+import CatalogPage from "@/pages/catalog-page";
+import AboutPage from "@/pages/about-page";
+import AboutDialogOverlay from "@/components/about-dialog-overlay";
+import PartDetailSheet from "@/components/part-detail-sheet";
 
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import CompatibilityPage from "./pages/CompatibilityPage";
-import PartsPage from "./pages/PartsPage";
-import AboutPage from "./pages/AboutPage";
-import styles from "./styles/App.module.css";
+interface LocationState {
+  backgroundLocation?: Location;
+}
 
 export default function App() {
+  const location = useLocation();
+  const state = location.state as LocationState | null;
+  const backgroundLocation = state?.backgroundLocation;
+
   return (
-    <Router>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Shimano Compatibility Checker</h1>
-        <nav className={styles.nav}>
-          <Link to="/">Compatibility</Link>
-          <Link to="/parts">Parts List</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <main className={styles.main}>
-        <Routes>
-          <Route path="/" element={<CompatibilityPage />} />
-          <Route path="/parts" element={<PartsPage />} />
-          <Route path="/about" element={<AboutPage />} />
+    <PartsProvider>
+      <TooltipProvider>
+        <Routes location={backgroundLocation ?? location}>
+          <Route element={<AppShell />}>
+            <Route path="/" element={<DiagnosisPage />} />
+            <Route path="/catalog" element={<CatalogPage />} />
+            <Route path="/catalog/:partId" element={<CatalogPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
         </Routes>
-      </main>
-    </Router>
+
+        {backgroundLocation && (
+          <Routes>
+            <Route path="/catalog/:partId" element={<PartDetailSheet />} />
+            <Route path="/about" element={<AboutDialogOverlay />} />
+          </Routes>
+        )}
+
+        <Toaster />
+      </TooltipProvider>
+    </PartsProvider>
   );
 }

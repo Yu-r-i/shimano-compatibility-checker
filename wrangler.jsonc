@@ -8,5 +8,13 @@
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*"]
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "shimano-compatibility-checker-db",
+      "database_id": "d0bfb2e5-a2bc-4c33-adc4-b7fcb66d3ad9",
+      "migrations_dir": "migrations"
+    }
+  ]
 }

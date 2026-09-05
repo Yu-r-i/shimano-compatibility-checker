@@ -1,10 +1,7 @@
 import { Hono } from "hono";
 import parts from "./routes/parts";
 import compatibility from "./routes/compatibility";
-
-interface Env {
-  ASSETS: Fetcher;
-}
+import type { Env } from "./types";
 
 const app = new Hono<{ Bindings: Env }>();
 

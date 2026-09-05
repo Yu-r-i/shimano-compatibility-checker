@@ -6,9 +6,9 @@ import {
   checkShifterRearDerailleur,
   summarize,
 } from "../domain/compatibility";
-import type { CompatibilitySelection } from "../types";
+import type { CompatibilitySelection, Env } from "../types";
 
-const compatibility = new Hono();
+const compatibility = new Hono<{ Bindings: Env }>();
 
 compatibility.post("/check", async (c) => {
   const body = await c
@@ -23,10 +23,12 @@ compatibility.post("/check", async (c) => {
     );
   }
 
-  const shifter = getPartById(shifterId);
-  const rearDerailleur = getPartById(rearDerailleurId);
-  const cassette = getPartById(cassetteId);
-  const chain = getPartById(chainId);
+  const [shifter, rearDerailleur, cassette, chain] = await Promise.all([
+    getPartById(c.env.DB, shifterId),
+    getPartById(c.env.DB, rearDerailleurId),
+    getPartById(c.env.DB, cassetteId),
+    getPartById(c.env.DB, chainId),
+  ]);
 
   if (!shifter || !rearDerailleur || !cassette || !chain) {
     return c.json({ error: "指定された part ID が見つかりません" }, 400);
