@@ -15,8 +15,13 @@ function detailBadges(part: Part): string[] {
   if (part.actuation) badges.push(part.actuation);
   if (part.freehub) badges.push(part.freehub);
   if (part.brake_type) badges.push(part.brake_type);
+  if (part.disc_mount) badges.push(part.disc_mount);
+  if (part.crank_spindle) badges.push(part.crank_spindle);
+  if (part.cleat_type) badges.push(part.cleat_type);
+  if (typeof part.rotor_size === "number") badges.push(`${part.rotor_size}mm`);
   if (typeof part.max_sprocket === "number") badges.push(`max ${part.max_sprocket}T`);
   if (Array.isArray(part.range)) badges.push(`${part.range[0]}–${part.range[1]}T`);
+  if (Array.isArray(part.crank_teeth)) badges.push(part.crank_teeth.join("/"));
   if (part.chain_type) badges.push(part.chain_type);
   return badges;
 }

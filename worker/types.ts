@@ -3,7 +3,20 @@ export interface Env {
   DB: D1Database;
 }
 
-export type PartCategory = "shifter" | "rear_derailleur" | "cassette" | "chain";
+export type PartCategory =
+  | "shifter"
+  | "brake_lever"
+  | "front_derailleur"
+  | "rear_derailleur"
+  | "crankset"
+  | "bottom_bracket"
+  | "cassette"
+  | "freewheel"
+  | "chain"
+  | "brake_caliper"
+  | "disc_rotor"
+  | "hub"
+  | "pedal";
 
 export interface Part {
   id: string;
@@ -23,14 +36,19 @@ export interface Part {
   freehub?: string;
   range?: [number, number];
   chain_type?: string;
+  crank_teeth?: number[];
+  crank_spindle?: string;
+  disc_mount?: string;
+  rotor_size?: number;
+  bb_shell?: string;
+  cleat_type?: string;
 }
 
-export interface CompatibilitySelection {
-  shifterId: string;
-  rearDerailleurId: string;
-  cassetteId: string;
-  chainId: string;
-}
+/**
+ * 診断選択状態。カテゴリごとに任意(部分選択可)。
+ * 2カテゴリ以上選択されると、該当するペアの互換ルールのみが評価される。
+ */
+export type CompatibilitySelection = Partial<Record<PartCategory, string>>;
 
 export interface RuleResult {
   ok: boolean;

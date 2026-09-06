@@ -3,11 +3,13 @@ import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { checkCompatibility } from "@/api/client";
-import type { CompatibilityResult, Part, PartCategory } from "@/types";
+import type { CompatibilityResult, CompatibilitySelection, Part, PartCategory } from "@/types";
 import { useParts } from "@/hooks/use-parts";
 import { SlotCard } from "@/components/slot-card";
 import { PartPicker } from "@/components/part-picker";
 import { ResultRail } from "@/components/result-rail";
+import { CATEGORY_ORDER } from "@/components/slot-card";
+import { computeDisabledSlots, resolveExclusiveConflicts } from "@/lib/exclusive-rules";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Drawer,
@@ -17,12 +19,7 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 
-const SLOTS: { category: PartCategory; param: string }[] = [
-  { category: "shifter", param: "shifter" },
-  { category: "rear_derailleur", param: "rd" },
-  { category: "cassette", param: "cassette" },
-  { category: "chain", param: "chain" },
-];
+const MIN_SELECTION_FOR_CHECK = 2;
 
 export default function DiagnosisPage() {
   const { parts, loading: partsLoading } = useParts();
@@ -32,14 +29,10 @@ export default function DiagnosisPage() {
   const warnedIds = useRef<Set<string>>(new Set());
 
   const selection = useMemo(() => {
-    const result: Record<PartCategory, Part | null> = {
-      shifter: null,
-      rear_derailleur: null,
-      cassette: null,
-      chain: null,
-    };
-    for (const { category, param } of SLOTS) {
-      const id = searchParams.get(param);
+    const result = {} as Record<PartCategory, Part | null>;
+    for (const category of CATEGORY_ORDER) {
+      const id = searchParams.get(category);
+      result[category] = null;
       if (!id) continue;
       const match = parts.find((p) => p.category === category && p.id === id);
       if (match) {
@@ -52,15 +45,32 @@ export default function DiagnosisPage() {
     return result;
   }, [parts, searchParams]);
 
-  const selectedCount = SLOTS.filter(({ category }) => selection[category]).length;
+  const selectedEntries = CATEGORY_ORDER.filter((category) => selection[category]);
+  const selectedCount = selectedEntries.length;
+  const selectionKey = selectedEntries.map((c) => `${c}:${selection[c]!.id}`).join("|");
+
+  const disabledSlots = useMemo(() => computeDisabledSlots(selection), [selection]);
+
+  // URL共有・直接編集等でUIの事前防止をすり抜けた「あり得ない組み合わせ」を自己修復する。
+  useEffect(() => {
+    if (partsLoading) return;
+    const next = new URLSearchParams(searchParams);
+    const findPart = (category: PartCategory, id: string) =>
+      parts.find((p) => p.category === category && p.id === id);
+    const { changed, messages } = resolveExclusiveConflicts(next, findPart);
+    if (changed) {
+      setSearchParams(next, { replace: true });
+      for (const message of messages) toast(message);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, parts, partsLoading]);
 
   const [summary, setSummary] = useState<CompatibilityResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const { shifter, rear_derailleur, cassette, chain } = selection;
-    if (!shifter || !rear_derailleur || !cassette || !chain) {
+    if (selectedCount < MIN_SELECTION_FOR_CHECK) {
       setSummary(null);
       setError(null);
       return;
@@ -70,12 +80,12 @@ export default function DiagnosisPage() {
     setLoading(true);
     setError(null);
 
-    checkCompatibility({
-      shifterId: shifter.id,
-      rearDerailleurId: rear_derailleur.id,
-      cassetteId: cassette.id,
-      chainId: chain.id,
-    })
+    const payload: CompatibilitySelection = {};
+    for (const category of selectedEntries) {
+      payload[category] = selection[category]!.id;
+    }
+
+    checkCompatibility(payload)
       .then((result) => {
         if (!cancelled) setSummary(result);
       })
@@ -94,19 +104,18 @@ export default function DiagnosisPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selection.shifter?.id, selection.rear_derailleur?.id, selection.cassette?.id, selection.chain?.id]);
+  }, [selectionKey]);
 
   function handleSelect(category: PartCategory, part: Part) {
-    const param = SLOTS.find((s) => s.category === category)!.param;
     const next = new URLSearchParams(searchParams);
-    next.set(param, part.id);
+    next.set(category, part.id);
     setSearchParams(next, { replace: true });
   }
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_320px] lg:items-start">
-      <div className="grid grid-cols-1 gap-4 pb-20 sm:grid-cols-2 lg:pb-0">
-        {SLOTS.map(({ category }) =>
+      <div className="grid grid-cols-2 gap-4 pb-20 sm:grid-cols-3 xl:grid-cols-4 lg:pb-0">
+        {CATEGORY_ORDER.map((category) =>
           partsLoading ? (
             <Skeleton key={category} className="h-32 w-full rounded-xl" />
           ) : (
@@ -115,6 +124,7 @@ export default function DiagnosisPage() {
               category={category}
               part={selection[category]}
               onOpenPicker={() => setOpenPicker(category)}
+              disabledReason={disabledSlots[category]}
             />
           )
         )}
@@ -132,8 +142,8 @@ export default function DiagnosisPage() {
           "fixed inset-x-0 bottom-0 z-30 flex items-center justify-between border-t bg-background px-4 py-3 text-sm lg:hidden"
         )}
       >
-        {selectedCount < 4 ? (
-          <span className="text-muted-foreground">{selectedCount}/4選択済み</span>
+        {selectedCount < MIN_SELECTION_FOR_CHECK ? (
+          <span className="text-muted-foreground">{selectedCount}/{CATEGORY_ORDER.length}選択済み</span>
         ) : loading ? (
           <span className="text-muted-foreground">判定中...</span>
         ) : error ? (
@@ -166,7 +176,7 @@ export default function DiagnosisPage() {
         </DrawerContent>
       </Drawer>
 
-      {SLOTS.map(({ category }) => (
+      {CATEGORY_ORDER.map((category) => (
         <PartPicker
           key={category}
           open={openPicker === category}

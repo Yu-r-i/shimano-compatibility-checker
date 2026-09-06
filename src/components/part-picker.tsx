@@ -24,6 +24,11 @@ function specLine(part: Part) {
   if (part.speed) bits.push(`${part.speed}s`);
   if (part.actuation) bits.push(part.actuation);
   if (part.freehub) bits.push(part.freehub);
+  if (part.brake_type) bits.push(part.brake_type);
+  if (part.disc_mount) bits.push(part.disc_mount);
+  if (part.crank_spindle) bits.push(part.crank_spindle);
+  if (part.cleat_type) bits.push(part.cleat_type);
+  if (typeof part.rotor_size === "number") bits.push(`${part.rotor_size}mm`);
   return bits.join(" · ");
 }
 

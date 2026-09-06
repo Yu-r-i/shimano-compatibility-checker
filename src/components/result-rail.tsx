@@ -3,6 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CompatibilityResult } from "@/types";
+import { CATEGORY_ORDER } from "@/components/slot-card";
+
+const MIN_SELECTION_FOR_CHECK = 2;
+const TOTAL_CATEGORIES = CATEGORY_ORDER.length;
 
 interface ResultRailProps {
   selectedCount: number;
@@ -12,7 +16,7 @@ interface ResultRailProps {
 }
 
 export function ResultRail({ selectedCount, summary, loading, error }: ResultRailProps) {
-  const complete = selectedCount >= 4;
+  const ready = selectedCount >= MIN_SELECTION_FOR_CHECK;
 
   return (
     <Card>
@@ -20,14 +24,15 @@ export function ResultRail({ selectedCount, summary, loading, error }: ResultRai
         <CardTitle>診断結果</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {!complete && (
-          <div className="space-y-2">
-            <Progress value={(selectedCount / 4) * 100} />
-            <p className="text-sm text-muted-foreground">{selectedCount}/4選択済み — あと{4 - selectedCount}つ選択してください</p>
-          </div>
-        )}
+        <div className="space-y-2">
+          <Progress value={(selectedCount / TOTAL_CATEGORIES) * 100} />
+          <p className="text-sm text-muted-foreground">
+            {selectedCount}/{TOTAL_CATEGORIES}選択済み
+            {!ready && ` — あと${MIN_SELECTION_FOR_CHECK - selectedCount}つ選択すると判定できます`}
+          </p>
+        </div>
 
-        {complete && loading && (
+        {ready && loading && (
           <div className="space-y-2">
             <Skeleton className="h-6 w-32" />
             <Skeleton className="h-4 w-full" />
@@ -35,7 +40,7 @@ export function ResultRail({ selectedCount, summary, loading, error }: ResultRai
           </div>
         )}
 
-        {complete && !loading && error && (
+        {ready && !loading && error && (
           <div className="space-y-1 text-destructive">
             <p className="flex items-center gap-2 font-medium">
               <XCircle className="size-5" />
@@ -45,7 +50,7 @@ export function ResultRail({ selectedCount, summary, loading, error }: ResultRai
           </div>
         )}
 
-        {complete && !loading && !error && summary && (
+        {ready && !loading && !error && summary && (
           <div className="space-y-2">
             {summary.ok ? (
               <p className="flex items-center gap-2 font-medium text-foreground">
@@ -64,6 +69,11 @@ export function ResultRail({ selectedCount, summary, loading, error }: ResultRai
                   <li key={reason}>{reason}</li>
                 ))}
               </ul>
+            )}
+            {summary.ok && summary.reasons.length === 0 && (
+              <p className="text-sm text-muted-foreground">
+                選択中のパーツ間に既知の互換ルールが定義されているペアはすべて適合しています。
+              </p>
             )}
           </div>
         )}
